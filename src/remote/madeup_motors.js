@@ -2,6 +2,7 @@
 
 import {Range, Door, DoorSecurity, RemoteVehicleService, VehicleInfo, EngineStatus, Status} from './remote.js';
 import {ErrorResponse} from '../errors.js';
+import {latency} from './metrics.js';
 
 /**
  * Interface with the Madeup Motors company's REST API to pull information from
@@ -25,8 +26,17 @@ export class MadeupMotorsService extends RemoteVehicleService {
    */
   async getVehicleInfo(id) {
     try {
+      const start = Date.now();
+
       const resp = await this.#post('/v1/getVehicleInfoService', new VehicleRequest(id));
       const madeup = await resp.json();
+
+      const end = Date.now()
+      latency.observe({
+        instance: this.instance,
+        service: this.name,
+        endpoint: '/v1/getVehicleInfoService'
+      }, (end - start) / 1000.0);
 
       if (madeup.status === "200") {
         return new VehicleInfo(
@@ -51,8 +61,17 @@ export class MadeupMotorsService extends RemoteVehicleService {
    */
   async getSecurity(id) {
     try {
+      const start = Date.now();
+
       const resp = await this.#post('/v1/getSecurityStatusService', new VehicleRequest(id));
       const madeup = await resp.json();
+
+      const end = Date.now()
+      latency.observe({
+        instance: this.instance,
+        service: this.name,
+        endpoint: '/v1/getSecurityStatusService'
+      }, (end - start) / 1000.0);
 
       if (madeup.status === "200") {
         const doors = this.#getArray(madeup, 'doors');
@@ -87,8 +106,17 @@ export class MadeupMotorsService extends RemoteVehicleService {
    */
   async getFuelRange(id) {
     try {
+      const start = Date.now();
+
       const resp = await this.#post('/v1/getEnergyService', new VehicleRequest(id));
       const madeup = await resp.json();
+
+      const end = Date.now()
+      latency.observe({
+        instance: this.instance,
+        service: this.name,
+        endpoint: '/v1/getEnergyService'
+      }, (end - start) / 1000.0);
 
       if (madeup.status === "200") {
         const range = this.#getNumber(madeup, 'tankLevel');
@@ -117,8 +145,17 @@ export class MadeupMotorsService extends RemoteVehicleService {
    */
   async getBatteryRange(id) {
     try {
+      const start = Date.now();
+
       const resp = await this.#post('/v1/getEnergyService', new VehicleRequest(id));
       const madeup = await resp.json();
+
+      const end = Date.now()
+      latency.observe({
+        instance: this.instance,
+        service: this.name,
+        endpoint: '/v1/getEnergyService'
+      }, (end - start) / 1000.0);
 
       if (madeup.status === "200") {
         const range = this.#getNumber(madeup, 'batteryLevel');
@@ -142,8 +179,17 @@ export class MadeupMotorsService extends RemoteVehicleService {
    */
   async startEngine(id) {
     try {
+      const start = Date.now();
+
       const resp = await this.#post('/v1/actionEngineService', new VehicleCommand(id, 'START_VEHICLE'));
       const madeup = await resp.json();
+
+      const end = Date.now()
+      latency.observe({
+        instance: this.instance,
+        service: this.name,
+        endpoint: '/v1/actionEngineService'
+      }, (end - start) / 1000.0);
 
       if (madeup.status === "200") {
         return new EngineStatus(madeup['actionResult'] === 'EXECUTED' && Status.SUCCESS || Status.ERROR);
@@ -161,8 +207,17 @@ export class MadeupMotorsService extends RemoteVehicleService {
    */
   async stopEngine(id) {
     try {
+      const start = Date.now();
+
       const resp = await this.#post('/v1/actionEngineService', new VehicleCommand(id, 'STOP_VEHICLE'));
       const madeup = await resp.json();
+
+      const end = Date.now()
+      latency.observe({
+        instance: this.instance,
+        service: this.name,
+        endpoint: '/v1/actionEngineService'
+      }, (end - start) / 1000.0);
 
       if (madeup.status === "200") {
         return new EngineStatus(madeup['actionResult'] === 'EXECUTED' && Status.SUCCESS || Status.ERROR);

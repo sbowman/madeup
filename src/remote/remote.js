@@ -9,6 +9,11 @@
  * keep a reference to a host endpoint or an authentication key, but don't fetch
  * something for a single request and store it as a property of the class unless
  * it's useful to other client requests.
+ *
+ * @property {string} name the identifier for this service
+ * @property {string} host the URL to the service
+ * @property {number} timeoutMs how long to wait for a response, in milliseconds
+ * @property {string} instance hostname of this server; used for metrics
  */
 export class RemoteVehicleService {
   /**
@@ -21,6 +26,7 @@ export class RemoteVehicleService {
     this.name = name;
     this.host = host;
     this.timeoutMs = timeoutMs;
+    this.instance =  process.env.HOSTNAME;
   }
 
   /**

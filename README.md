@@ -54,6 +54,30 @@ available:
 Currently the only service supported is Madeup Motors, identified by 
 `madeup_motors`.
 
+## Metrics
+
+The server uses Prometheus for generating metrics.  These metrics are available
+from the standard endpoint, `/metrics`.
+
+The standard Prometheus default metrics are enabled, and can be found here:
+
+https://prometheus.io/docs/instrumenting/writing_clientlibs/#standard-and-runtime-collectors
+
+Additionally, HTTP metrics are enabled:
+
+* `http_request_duration_seconds` (_Histogram_) - measures the total request/response time for each endpoint 
+  (enabled by [`express-prom-bundle`](https://github.com/jochen-schweizer/express-prom-bundle))
+* `remote_latency_seconds` (_Histogram_) - measure the time it takes to complete a request to a remote service like 
+  Madeup Motors; includes a label, `endpoint` indicating the remote path requested 
+
+Every metric includes the following labels:
+
+* `instance` - the hostname of the server instance, configured from the `HOSTNAME` environment variable
+* `service` - the service identifier for this instance, e.g. "madeup_motors," from the `SERVICE` environment variable
+
+Note: _the service URL is not included in the metric labels.  It should be easy
+enough to reference by the service identifier and instance._
+
 ## Madeup Motors API Endpoint
 
 The Madeup Motors API endpoint is:
