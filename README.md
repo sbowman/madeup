@@ -2,9 +2,11 @@
 
 ## Challenge
 
-The Madeup Motors (MM) car company has a terrible API. It returns badly structured JSON
-which isn't always consistent. Smartcar needs to adapt the API into a cleaner format.
-Instructions
+The Madeup Motors (MM) car company has a terrible API. It returns badly 
+structured JSON which isn't always consistent. Smartcar needs to adapt the API 
+into a cleaner format. 
+
+### Instructions
 
 There are two API specifications provided below, the MM API and the Smartcar API Spec.
 Your task is to implement the Smartcar spec by making HTTP requests to the MM API.
@@ -19,7 +21,40 @@ Your tasks are as follows:
 * Provide tests for your API implementation
 * Write your code to be well structured and documented
 
-## API Endpoint
+### Assessment
+
+1. Documentation
+2. Modularization
+3. Logging
+4. Error Handling
+5. Functionality
+6. Testing
+7. Code Style and Quality
+
+## Launching the server
+
+To run the server in development mode, use the scripts defined in `package.json`:
+
+    $ npm run dev
+
+To run test cases:
+
+    $ npm run test
+
+### Configuring the server
+
+The server is managed through environment variables, with the anticipation it 
+will be deployed in a container of some sort.  The following settings are
+available:
+
+* `PORT` - listen for client requests on this port
+* `SERVICE` - the Smartcar service identifier, e.g. `madeup_motors`
+* `SERVICE_HOST` - the remote service endpoint for the identified service
+
+Currently the only service supported is Madeup Motors, identified by 
+`madeup_motors`.
+
+## Madeup Motors API Endpoint
 
 The Madeup Motors API endpoint is:
 
@@ -27,7 +62,7 @@ https://platform-challenge.smartcar.com
 
 ### Sample API call
 
-    curl https://platform-challenge.smartcar.com/v1/getVehicleInfoService \
+    $ curl https://platform-challenge.smartcar.com/v1/getVehicleInfoService \
        -X POST \
        -H 'Content-Type: application/json' \
        -d '{"id": "1234", "responseType": "JSON"}'

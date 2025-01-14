@@ -1,0 +1,34 @@
+{
+  "name": "madeup",
+  "version": "0.1.0",
+  "description": "Smarcar Backend Coding Challenge",
+  "keywords": [
+    "js",
+    "express",
+    "swagger"
+  ],
+  "homepage": "https://github.com/sbowman/madeup",
+  "bugs": {
+    "url": "https://github.com/sbowman/madeup/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbowman/madeup.git"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "author": "Sean Bowman",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "jsdoc": "^4.0.4"
+  }
+}
