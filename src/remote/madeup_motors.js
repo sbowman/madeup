@@ -14,7 +14,7 @@ export class MadeupMotorsService extends RemoteVehicleService {
    * @param {number} timeoutMs how long to wait for the Madeup Motors API to reply, in ms
    */
   constructor(host, timeoutMs) {
-    super(host, timeoutMs);
+    super('madeup_motors', host, timeoutMs);
   }
 
   /**
@@ -89,8 +89,6 @@ export class MadeupMotorsService extends RemoteVehicleService {
     try {
       const resp = await this.#post('/v1/getEnergyService', new VehicleRequest(id));
       const madeup = await resp.json();
-
-      console.log(madeup);
 
       if (madeup.status === "200") {
         const range = this.#getNumber(madeup, 'tankLevel');

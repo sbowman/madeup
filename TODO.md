@@ -1,6 +1,5 @@
 # To Do List
 
-* Finish handlers
 * Test cases (jest)
 * Proper logging (winston?)
 * Proper metrics (prometheus)

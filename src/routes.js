@@ -1,14 +1,19 @@
 /** @module routes **/
 
-import express from "express";
+import express from 'express';
+import promBundle from 'express-prom-bundle';
 
-import {getBatteryRange, getDoors, getFuelRange, getVehicleInfo, postStartStopEngine} from "./handlers.js";
+import {getBatteryRange, getDoors, getFuelRange, getVehicleInfo, postStartStopEngine} from './handlers.js';
 import {RemoteVehicleService} from './remote/remote.js';
 import {ErrorResponse} from './errors.js';
 
 /**
  * Create the Express routes for the given service, such as the
  * MadeupMotorsService.
+ *
+ * Enables endpoint metrics via Prometheus using the `express-prom-bundle`. Each
+ * metric should be labeled with the `instance`, configured via the `HOSTNAME`
+ * environment variable, and the `service` identifier, such as "madeup_motors."
  *
  * @module routes
  * @function createRoutes
@@ -19,12 +24,34 @@ import {ErrorResponse} from './errors.js';
 export default function createRoutes(service) {
   const server = express();
 
-  server.get("/vehicles/:id", getVehicleInfo(service));
-  server.get("/vehicles/:id/doors", getDoors(service));
-  server.get("/vehicles/:id/fuel", getFuelRange(service));
-  server.get("/vehicles/:id/battery", getBatteryRange(service));
+  const labels = {};
+  if (process.env.HOSTNAME) {
+    labels['instance'] = process.env.HOSTNAME;
+  }
 
-  server.post("/vehicles/:id/engine", postStartStopEngine(service));
+  labels['service'] = service.name;
+
+  const metrics = promBundle({
+    includeMethod: true,
+    includePath: true,
+    includeStatusCode: true,
+    includeUp: true,
+    customLabels: labels,
+    promClient: {
+      collectDefaultMetrics: {
+        labels: labels,
+      }
+    }
+  });
+  server.use(metrics);
+
+
+  server.get('/vehicles/:id', getVehicleInfo(service));
+  server.get('/vehicles/:id/doors', getDoors(service));
+  server.get('/vehicles/:id/fuel', getFuelRange(service));
+  server.get('/vehicles/:id/battery', getBatteryRange(service));
+
+  server.post('/vehicles/:id/engine', postStartStopEngine(service));
 
   server.use(errorHandler);
 

@@ -13,10 +13,12 @@
 export class RemoteVehicleService {
   /**
    * @constructor
+   * @param {string} name the name of the service
    * @param {string} host the URL of the manufacturer's API
    * @param {number} timeoutMs how long to wait for the remote service to reply, in ms
    */
-  constructor(host, timeoutMs) {
+  constructor(name, host, timeoutMs) {
+    this.name = name;
     this.host = host;
     this.timeoutMs = timeoutMs;
   }
