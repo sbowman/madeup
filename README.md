@@ -60,13 +60,23 @@ The Madeup Motors API endpoint is:
 
 https://platform-challenge.smartcar.com
 
-### Sample API call
+### Sample API calls
+
+If you don't have `jq` installed, simply drop the pipe.  It prettifies the 
+output but isn't required.
+
+    $ curl http://localhost:3000/vehicles/1234 -s | jq
+    {
+        "vin": "123123412412",
+        "color": "Metallic Silver",
+        "doorCount": 4,
+        "driveTrain": "v8"
+    }
 
     $ curl https://platform-challenge.smartcar.com/v1/getVehicleInfoService \
        -X POST \
        -H 'Content-Type: application/json' \
-       -d '{"id": "1234", "responseType": "JSON"}'
-
+       -d '{"id": "1234", "responseType": "JSON"}' -s | jq
     {
       "service": "getVehicleInfo",
       "status": "200",

@@ -3,7 +3,7 @@ import identifyService from './remote/identifier.js';
 import createRoutes from './routes.js';
 
 const settings = configureServer();
-const service = identifyService(settings.service, settings.service_host);
+const service = identifyService(settings.service, settings.serviceHost, settings.serviceTimeoutMs);
 
 const server = createRoutes(service);
 server.listen(settings.port, () => {

@@ -1,6 +1,10 @@
 # To Do List
 
-* Setup Docker, with Prometheus, Grafana, and ELK
-* Test cases
+* Finish handlers
+* Test cases (jest)
+* Proper logging (winston?)
+* Proper metrics (prometheus)
 * Setup GitHub action to run tests
+* Add Swagger?
+* Setup Docker, with Prometheus, Grafana, and ELK?
 

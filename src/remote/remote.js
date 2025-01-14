@@ -1,14 +1,24 @@
+/** @module remote **/
+
 /**
  * Mimic an interface for remote auto service APIs such as Madeup Motors.  Note
  * that all the functions on the base class raise a "not implemented" exception.
+ *
+ * Classes extending this interface should make sure they don't implement any
+ * state that can't be reused by multiple processes.  For example, it's ok to
+ * keep a reference to a host endpoint or an authentication key, but don't fetch
+ * something for a single request and store it as a property of the class unless
+ * it's useful to other client requests.
  */
 export class RemoteVehicleService {
   /**
    * @constructor
    * @param {string} host the URL of the manufacturer's API
+   * @param {number} timeoutMs how long to wait for the remote service to reply, in ms
    */
-  constructor(host) {
+  constructor(host, timeoutMs) {
     this.host = host;
+    this.timeoutMs = timeoutMs;
   }
 
   /**
@@ -172,17 +182,6 @@ export class Range {
 }
 
 /**
- * The available actions to take on an engine.
- *
- * @type {Readonly<{START: string, STOP: string}>}
- * @see EngineStatus
- */
-export const Action = Object.freeze({
-  START: "START",
-  STOP: "STOP",
-});
-
-/**
  * The status of the engine after an attempt to start or stop it.
  *
  * @type {Readonly<{SUCCESS: string, ERROR: string}>}
@@ -200,7 +199,7 @@ export const Status = Object.freeze({
 export class EngineStatus {
   /**
    * @constructor
-   * @param {Status} status following the engine start or stop
+   * @param {string} status following the engine start or stop
    */
   constructor(status) {
     this.status = status;
