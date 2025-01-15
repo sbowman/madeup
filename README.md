@@ -40,10 +40,12 @@ The following are some of the things I didn't implement because they seemed to
 be outside the scope of this challenge, but might be worth mentioning so you can
 see how I think about these things:
 
+* Add support for rolling log files.
 * Create a `docker-compose.yml` to setup a Prometheus, Grafana, and potentially
   ELK stack (ElasticSearch, Logstash, Kibana) locally, so I could build out some
   monitoring dashboards and develop some Prometheus alerts. Also make sure my
   logs and metrics look good and are meaningful in general over time.
+* Wire up logging to ELK (or whatever logging service Smartcar uses).
 * Per the previous bullet, provide some Grafana baseline sample dashboards as
   JSON in the project. I could also include Prometheus Alertmanager YAML
   configurations to support alerting efforts. This would allow others to get
@@ -66,10 +68,10 @@ see how I think about these things:
   [k6](https://github.com/grafana/k6) also works well. Use load testing to also
   wargame monitoring and alerting.
 
-I find if you can find the time to implement a number of these ideas early in
+I find if you can make the time to implement a number of these ideas early in
 the development process, in the long run you've got a really solid foundation to
 build on without having to worry that the next new feature breaks older
-features. And then you move much, much more quickly moving forward, focusing
+features. And then you move much, much more quickly going forward, focusing
 more on feature development than on tech debt.
 
 For feature-related ideas I'd look at implementing,
@@ -87,8 +89,8 @@ application:
 
 In development, the following packages are used:
 
-* [Jest](https://jestjs.io/), for testing
-* [JSDoc](https://jsdoc.app/), for generating source code API docs
+* [Jest](https://jestjs.io/)
+* [JSDoc](https://jsdoc.app/)
 
 ## Timeouts
 
@@ -102,15 +104,16 @@ applications may take that approach, but I feel that if a service is struggling
 to fulfill requests, the last thing I as a client should do is double or triple
 the load (or worse) by adding more and more requests.
 
-Instead, the downstream service using this application should either ask the
-user if they want to try again, thereby buying the Madeup Motors service some
-time to recover.
+Instead, the downstream service using this application should ask the user if 
+they want to try again, thereby buying the Madeup Motors service some time to 
+recover.
 
 Or, if this API is being used by an automated service, perhaps grabbing vehicle
 data nightly, have the service try once. If that request times out, try again
 15 minutes or an hour later. Or even better, skip that day and try again the
 next, if that's an option, and log an error message for an adminstrator to check
-if it continues to happen multiple days.
+if it continues to happen multiple days in a row or the majority of days in a
+month.
 
 ## Development
 
@@ -122,6 +125,18 @@ To run test cases:
 
     $ npm run test
 
+### Development notes
+
+The JavaScript source code for the server is in the `src/` directory.  With the
+various configuration docs in the project's root folder, it keeps things cleaner
+for me to tuck the JavaScript into its own directory.
+
+I included the test cases alongside the code in `src/`.  Some folks isolate
+their tests into a separate directory like `tests/`.  I personally prefer to
+keep my test cases near what they're testing because it's easier for me to find
+them.  But I can also see the benefits to isolating them and getting them out of
+the way of production code.
+
 ## Documentation
 
 To generate the source code documentation, you can us [JSDoc](https://jsdoc.app/):
@@ -129,6 +144,10 @@ To generate the source code documentation, you can us [JSDoc](https://jsdoc.app/
     $ npm run docs
     $ cd docs && open index.html            # Mac
     $ cd docs && xdg-open index.html        # Linux
+
+Apologies for my JSDoc. I find it tricky to get source code-based APIs to
+generate in JavaScript (I think I've been spoiled by Go).  But it is very 
+helpful for assisting in linting my JavaScript.
 
 ### Configuring the server
 
@@ -139,7 +158,7 @@ available:
 * `PORT` - listen for client requests on this port; defaults to 3000
 * `SERVICE` - the Smartcar service identifier, e.g. `madeup_motors`
 * `SERVICE_HOST` - the remote service endpoint for the identified service
-* `SERVICE_TIMEOUT` - how long to wait for the service to respond, in ms; default to 5000ms
+* `SERVICE_TIMEOUT` - how long to wait for the service to respond, in ms; defaults to 5000ms
 * `LOG_LEVEL` - level of logs to output; defaults to "info"
 * `LOG_FILE` (_optional_) - a file to write the logs to; if not present, outputs logs to the console
 
@@ -175,8 +194,46 @@ Every metric includes the following labels:
 * `service` - the service identifier for this instance, e.g. "madeup_motors,"
   from the `SERVICE` environment variable
 
+Particularly in a scaled deployment infrastructure like Kubernetes, I find 
+having the `instance` or pod information readily available sometimes makes it 
+easier to determine if there's a bug in the software versus a problem with the 
+underlying node or cluster.
+
 Note: _the service URL is not included in the metric labels. It should be easy
-enough to reference by the service identifier and instance._
+enough to reverse engineer using the service identifier and instance._
+
+## Logging
+
+Metrics are the first line of defense:  they should wake you up with an alert
+when there's a problem, but they might not provide enough detail to solve it.  
+That's where logs come in.
+
+Logging is the next line of defense, for the humans.  They should be 
+human-readable and contain detailed notes that educate and inform.  This 
+application is fairly simple, so its logging may not be as rich as a larger
+app, but I typically generate three types of messages:
+
+* `info` - these only occur on startup, and inform people about configuration 
+  details such as what port the app is listening to or what database server URI
+  is in use.  Useful for confirming the right configuration settings were 
+  deployed.
+* `debug` - these messages are not output in a production environment unless
+  there is a paricularly nasty issue being debugged.  Instead, these are 
+  primarily for the developers to help them test and debug code during 
+  development.
+* `error` - these messages are generated in production to assist individuals 
+  with troubleshooting problems.
+
+To summarize:  `info` and `error` are always on and used for production 
+monitoring, while `debug` is used in development or possibly to debug a nasty
+production issue.
+
+Log levels are configured using the `LOG_LEVEL` environment variable.
+
+When logging to the console, note the server tries to pretty-print the output to
+make it easier to read.  When outputting to a file the service writes the log
+output in JSON format.  Indicate the path to the log file using the `LOG_FILE`
+environment variable.
 
 ## Madeup Motors API Endpoint
 
@@ -318,9 +375,3 @@ I don't know if this is common at Smartcar, but I sometimes find it nice to have
 the Swagger-generated docs and web pages to play around with the API. Also
 tends to be easier to maintain than the manually-generated [API.md](API.md)
 document I created.
-
-## Apologies
-
-Apologies for my JSDoc. I find it tricky to get source code-based APIs to
-generate in JavaScript.  (I think I've been spoiled by Go and Elixir.) But it is
-very helpful for linting my JavaScript when I'm not using TypeScript.
