@@ -22,7 +22,7 @@ echo "\nStopping the engine (randomly fails and succeeds):" && curl http://local
 
 echo "\n\nTesting errors..."
 
-echo "\nTesting a bad JSON body:" && curl http://localhost:3000/vehicles/1235/engine -H "Content-Type: application/json" -d "{'action': 'START'}" -XPOST -s | jq
-echo "\nTesting a bad endpoint:" && curl http://localhost:3000/blahblah -s | jq
-echo "\nTesting a missing vehicle ID:" && curl http://localhost:3000/vehicles -s | jq
-echo "\nTesting a bad vehicle ID:" && curl http://localhost:3000/vehicles/abc -s | jq
+echo "\nTesting a bad JSON body (should be a 400 unable to parse body):" && curl http://localhost:3000/vehicles/1235/engine -H "Content-Type: application/json" -d "{'action': 'START'}" -XPOST -s | jq
+echo "\nTesting a bad endpoint (should be a 404 endpoint not found):" && curl http://localhost:3000/blahblah -s | jq
+echo "\nTesting a missing vehicle ID (should be a 404 endpoint not found):" && curl http://localhost:3000/vehicles -s | jq
+echo "\nTesting a bad vehicle ID (should be a 404 vehicle not found):" && curl http://localhost:3000/vehicles/abc -s | jq
