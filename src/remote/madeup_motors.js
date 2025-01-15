@@ -42,7 +42,7 @@ export class MadeupMotorsService extends RemoteVehicleService {
         endpoint: '/v1/getVehicleInfoService'
       }, (end - start) / 1000.0);
 
-      if (madeup.status === "200") {
+    if (madeup.status === '200') {
         return new VehicleInfo(
           this.#getString(madeup, 'vin'),
           this.#getString(madeup, 'color'),
@@ -53,7 +53,7 @@ export class MadeupMotorsService extends RemoteVehicleService {
 
       return this.#parseError(madeup);
     } catch (error) {
-      return this.#isAbortError(error);
+      return this.#isTimeoutError(error);
     }
   }
 
@@ -93,7 +93,7 @@ export class MadeupMotorsService extends RemoteVehicleService {
 
       return this.#parseError(madeup);
     } catch (error) {
-      return this.#isAbortError(error);
+      return this.#isTimeoutError(error);
     }
   }
 
@@ -131,8 +131,10 @@ export class MadeupMotorsService extends RemoteVehicleService {
 
         return new Range(range);
       }
+
+      return this.#parseError(madeup);
     } catch (error) {
-      return this.#isAbortError(error);
+      return this.#isTimeoutError(error);
     }
   }
 
@@ -170,8 +172,10 @@ export class MadeupMotorsService extends RemoteVehicleService {
 
         return new Range(range);
       }
+
+      return this.#parseError(madeup);
     } catch (error) {
-      return this.#isAbortError(error);
+      return this.#isTimeoutError(error);
     }
   }
 
@@ -198,8 +202,10 @@ export class MadeupMotorsService extends RemoteVehicleService {
       if (madeup.status === "200") {
         return this.#interpretEngineStatus(madeup);
       }
+
+      return this.#parseError(madeup);
     } catch (error) {
-      return this.#isAbortError(error);
+      return this.#isTimeoutError(error);
     }
   }
 
@@ -226,20 +232,20 @@ export class MadeupMotorsService extends RemoteVehicleService {
       if (madeup.status === "200") {
         return this.#interpretEngineStatus(madeup);
       }
+
+      return this.#parseError(madeup);
     } catch (error) {
-      return this.#isAbortError(error);
+      return this.#isTimeoutError(error);
     }
   }
 
   // Post a request to the Madeup Motors REST API.
   #post(path, request) {
-    const controller = new AbortController();
-
     return fetch(`${this.host}${path}`, {
       method: 'post',
       body: JSON.stringify(request),
       headers: {'Content-Type': 'application/json'},
-      signal: controller.signal,
+      signal: AbortSignal.timeout(this.timeoutMs),
     });
   }
 
@@ -310,9 +316,9 @@ export class MadeupMotorsService extends RemoteVehicleService {
 
   // Check the exception thrown from a fetch/#post and transform it into an
   // ErrorResponse.
-  #isAbortError(error) {
+  #isTimeoutError(error) {
     if (error) {
-      if (error['name'] === 'AbortError') {
+      if (error['name'] === 'TimeoutError') {
         return new ErrorResponse('503',
           `The Madeup Motors service did not respond in the expected amount of time (${this.timeoutMs} ms).`);
       }

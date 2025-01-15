@@ -10,6 +10,8 @@ const mockResponse = (data, options = {}) => ({
   ...options,
 });
 
+const service = new MadeupMotorsService('http://localhost');
+
 describe('Madeup Motors Service API', () => {
   afterEach(() => {
     jest.clearAllMocks();
@@ -43,7 +45,6 @@ describe('Madeup Motors Service API', () => {
       }
     }));
 
-    const service = new MadeupMotorsService('http://localhost');
     const info = await service.getVehicleInfo('55555');
 
     expect(info.vin).toBe('ABC1234');
@@ -85,8 +86,6 @@ describe('Madeup Motors Service API', () => {
       }
     }));
 
-
-    const service = new MadeupMotorsService('http://localhost');
     const info = await service.getSecurity('2222');
 
     expect(info).toHaveProperty('doors');
@@ -111,8 +110,6 @@ describe('Madeup Motors Service API', () => {
       }
     }));
 
-
-    const service = new MadeupMotorsService('http://localhost');
     const info = await service.getFuelRange('81');
 
     expect(info.percent).toBe(30.2);
@@ -134,8 +131,6 @@ describe('Madeup Motors Service API', () => {
       }
     }));
 
-
-    const service = new MadeupMotorsService('http://localhost');
     const info = await service.getBatteryRange('97');
 
     expect(info.percent).toBe(83.01);
@@ -150,8 +145,6 @@ describe('Madeup Motors Service API', () => {
       }
     }));
 
-
-    const service = new MadeupMotorsService('http://localhost');
     const info = await service.startEngine('11');
 
     expect(info.status).toBe('success');
@@ -166,10 +159,29 @@ describe('Madeup Motors Service API', () => {
       }
     }));
 
-
-    const service = new MadeupMotorsService('http://localhost');
     const info = await service.stopEngine('12');
 
     expect(info.status).toBe('success');
+  });
+
+  test('Should handle a Madeup Motors error for a bad vehicle ID', async () => {
+    global.fetch = jest.fn().mockResolvedValue(mockResponse({
+      'status': '404',
+      'reason': 'Vehicle id: blah not found.'
+    }));
+
+    const methods = [
+      service.getVehicleInfo,
+      service.getSecurity,
+      service.getFuelRange,
+      service.getBatteryRange,
+      service.startEngine,
+      service.stopEngine,
+    ];
+    for (const method of methods) {
+      const info = await method.call(service, '1234');
+      expect(info.code).toBe(404);
+      expect(info.reason).toContain('not found');
+    }
   });
 });
