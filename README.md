@@ -1,5 +1,7 @@
 # Madeup Motors Smartcar Challenge
 
+[The Smartcar API](API.md)
+
 ## Challenge
 
 The Madeup Motors (MM) car company has a terrible API. It returns badly
