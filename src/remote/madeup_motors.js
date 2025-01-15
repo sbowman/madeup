@@ -42,7 +42,7 @@ export class MadeupMotorsService extends RemoteVehicleService {
         endpoint: '/v1/getVehicleInfoService'
       }, (end - start) / 1000.0);
 
-    if (madeup.status === '200') {
+      if (madeup.status === '200') {
         const info = new VehicleInfo(
           this.#getString(madeup, 'vin'),
           this.#getString(madeup, 'color'),
@@ -349,7 +349,7 @@ export class MadeupMotorsService extends RemoteVehicleService {
   #interpretEngineStatus(madeup) {
     if (madeup['actionResult'] && madeup['actionResult']['status'] === 'EXECUTED') {
       return new EngineStatus(Status.SUCCESS);
-    } else if (madeup['actionResult'] && madeup['actionResult']['status'])  {
+    } else if (madeup['actionResult'] && madeup['actionResult']['status']) {
       return new EngineStatus(Status.ERROR);
     } else {
       return new ErrorResponse('503', 'Madeup Motors did not return the expected response; did the API change?');

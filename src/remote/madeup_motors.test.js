@@ -224,6 +224,5 @@ describe('Madeup Motors Service API', () => {
     const stop = await service.stopEngine('97');
     expect(stop.code).toBe(503);
     expect(stop.reason).toContain('did the API change');
-
   });
 });
