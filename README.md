@@ -33,6 +33,14 @@ Your tasks are as follows:
 6. Testing
 7. Code Style and Quality
 
+## Documentation
+
+To generate the source code documentation, you can us [JSDoc](https://jsdoc.app/):
+
+    $ npm run docs
+    $ cd docs && open index.html            # Mac
+    $ cd docs && xdg-open index.html        # Linux
+
 ## Launching the server
 
 To run the server in development mode, use the scripts defined in `package.json`:
