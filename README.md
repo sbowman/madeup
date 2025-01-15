@@ -177,6 +177,17 @@ It would be nice if we could query a service like Madeup Motors for the current
 state of the vehicle's engine.  We could then reduce the uncertainty and risk
 to repetive and unnecessary start or stop engine requests.
 
+### Limited service API: sedan and coupe
+
+From the Madeup Motors API documentation, it looks like they only support two
+kinds of vehicles:  "fourDoorSedan" and "twoDoorCoupe."  When determining the 
+number of doors, these are the only options the Smartcar API currently parses
+for.
+
+Because of the way Madeup Motors includes both vehicle types in any vehicle 
+info response, I don't try to support other types of vehicles.  If they add new
+types of vehicles to their data model, this app would need an update to support.
+ 
 ### Support for multiple remote APIs
 
 While the Smartcar service currently defaults to the Madeup Motors API, it is
