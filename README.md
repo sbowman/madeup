@@ -1,47 +1,66 @@
 # Madeup Motors Smartcar Challenge
 
-[The Smartcar API](API.md)
+This is my implementation of the _Madeup Motors Smartcar Challenge_.  My 
+implementation is a bit more modular that it perhaps needed to be given the 
+outline.  I tried to think ahead a bit.  In thinking about this with a 
+"production" mindset, I architected the application so it would be easy to 
+implement additional manufacturer's APIs and configure them at startup--with the 
+intention that the application be expanded at some point to support multiple 
+simultaneous backend REST services, i.e. multiple manufacturers.
 
-## Challenge
+I also tried to make sure all error handling was accounted for, and always 
+returned both an appropriate HTTP error response code as well as a JSON object
+outlining the reason for the error.  The JSON object also contains the error
+response code, so clients may choose to parse the header or parse the JSON and
+get the code in either place.  See [Error Handling](API.md#Error-Handling) for
+details.
 
-The Madeup Motors (MM) car company has a terrible API. It returns badly
-structured JSON which isn't always consistent. Smartcar needs to adapt the API
-into a cleaner format.
+To run the server itself or test cases, see [Development](#Development) below.
 
-### Instructions
+For additional thoughts and features I might explore if I were to continue
+development on this server, [see below](#Future-Considerations-and-Features).
 
-There are two API specifications provided below, the MM API and the Smartcar API Spec.
-Your task is to implement the Smartcar spec by making HTTP requests to the MM API.
+[The Smartcar API](API.md) page contains details about the API, including 
+sample request/response inputs and outputs.
 
-The flow looks like this:
+## Third-party Node Modules
 
-    client --request--> Smartcar API --request--> MM API
+The following third-party libraries (and there dependencies) are used by this
+application:
 
-Your tasks are as follows:
+* [Express](https://expressjs.com/)
+* [Prometheus](https://github.com/siimon/prom-client)
+* [Express Prometheus Bundle](https://github.com/jochen-schweizer/express-prom-bundle)
+* [Winston](https://github.com/winstonjs/winston), for logging
 
-* Implement the Smartcar API specification using any frameworks or libraries as necessary
-* Provide tests for your API implementation
-* Write your code to be well structured and documented
+In development, the following packages are used:
 
-### Assessment
+* [Jest](https://jestjs.io/), for testing
+* [JSDoc](https://jsdoc.app/), for generating source code API docs 
 
-1. Documentation
-2. Modularization
-3. Logging
-4. Error Handling
-5. Functionality
-6. Testing
-7. Code Style and Quality
+## Timeouts
 
-## Documentation
+The Madeup Motors client module in `remote/madeup_motors.js` is configured to
+timeout if the service hangs or is otherwise unavailable.  When this happens,
+it returns a `503 Gateway Error` to the client, with an explanation that
+Madeup Motors service has timed out.  
 
-To generate the source code documentation, you can us [JSDoc](https://jsdoc.app/):
+The application intentionally does **not** retry requests.  I know some 
+applications may take that approach, but I feel that if a service is struggling 
+to fulfill requests, the last thing I as a client should do is double or triple 
+the load (or worse) by adding more and more requests.
 
-    $ npm run docs
-    $ cd docs && open index.html            # Mac
-    $ cd docs && xdg-open index.html        # Linux
+Instead, the downstream service using this application should either ask the 
+user if they want to try again, thereby buying the Madeup Motors service some
+time to recover.  
 
-## Launching the server
+Or, if this API is being used by an automated service, perhaps grabbing vehicle 
+data nightly, have the service try once.  If that request times out, try again 
+15 minutes or an hour later.  Or even better, skip that day and try again the 
+next, if that's an option, and log an error message for an adminstrator to check 
+if it continues to happen multiple days. 
+
+## Development
 
 To run the server in development mode, use the scripts defined in `package.json`:
 
@@ -50,6 +69,14 @@ To run the server in development mode, use the scripts defined in `package.json`
 To run test cases:
 
     $ npm run test
+
+## Documentation
+
+To generate the source code documentation, you can us [JSDoc](https://jsdoc.app/):
+
+    $ npm run docs
+    $ cd docs && open index.html            # Mac
+    $ cd docs && xdg-open index.html        # Linux
 
 ### Configuring the server
 
