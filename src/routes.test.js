@@ -142,16 +142,16 @@ describe('Router endpoints', () => {
     expect(resp.status).toBe(404);
   });
 
-  test('Endpoint /vehicles should return 404 vehicle not found for a missing vehicle ID', async () => {
-    const resp = await fetch('http://localhost:8888/vehicles/7');
+  test('Endpoint /vehicles should return 404 bad endpoint for a missing vehicle ID', async () => {
+    const resp = await fetch('http://localhost:8888/vehicles');
     const body = await resp.json();
 
     expect(resp.status).toBe(404);
     expect(body.status).toBe('error');
-    expect(body.reason).toBe('Vehicle not found.');
+    expect(body.reason).toBe('That endpoint does not exist.');
   });
 
-  test('A bad endpoint should return a 404 JSON response', async () => {
+  test('A bad endpoint should return a 404 endpoint not found JSON response', async () => {
     const resp = await fetch('http://localhost:8888/this/endpoint/does/not/exist');
     const body = await resp.json();
 
