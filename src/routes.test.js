@@ -113,6 +113,35 @@ describe('Router endpoints', () => {
     expect(resp.status).toBe(200);
   });
 
+  test('Endpoint /vehicles/:id should return 404 for an invalid vehicle ID', async () => {
+    const resp = await fetch('http://localhost:8888/vehicles/7');
+    expect(resp.status).toBe(404);
+  });
+
+  test('Endpoint /vehicles/:id/doors should return 404 for an invalid vehicle ID', async () => {
+    const resp = await fetch('http://localhost:8888/vehicles/9/doors');
+    expect(resp.status).toBe(404);
+  });
+
+  test('Endpoint /vehicles/:id/fuel should return 404 for an invalid vehicle ID', async () => {
+    const resp = await fetch('http://localhost:8888/vehicles/88/fuel');
+    expect(resp.status).toBe(404);
+  });
+
+  test('Endpoint /vehicles/:id/battery should return 404 for an invalid vehicle ID', async () => {
+    const resp = await fetch('http://localhost:8888/vehicles/276/battery');
+    expect(resp.status).toBe(404);
+  });
+
+  test('Endpoint /vehicles/:id/engine should return 404 for an invalid vehicle ID', async () => {
+    const resp = await fetch('http://localhost:8888/vehicles/A/engine', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({"action": "START"})
+    });
+    expect(resp.status).toBe(404);
+  });
+
   test('A bad endpoint should return a 404 JSON response', async () => {
     const resp = await fetch('http://localhost:8888/this/endpoint/does/not/exist');
     const body = await resp.json();
