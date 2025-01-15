@@ -192,7 +192,7 @@ export class MadeupMotorsService extends RemoteVehicleService {
       }, (end - start) / 1000.0);
 
       if (madeup.status === "200") {
-        return new EngineStatus(madeup['actionResult'] === 'EXECUTED' && Status.SUCCESS || Status.ERROR);
+        return this.#interpretEngineStatus(madeup);
       }
     } catch (error) {
       return this.#isAbortError(error);
@@ -220,7 +220,7 @@ export class MadeupMotorsService extends RemoteVehicleService {
       }, (end - start) / 1000.0);
 
       if (madeup.status === "200") {
-        return new EngineStatus(madeup['actionResult'] === 'EXECUTED' && Status.SUCCESS || Status.ERROR);
+        return this.#interpretEngineStatus(madeup);
       }
     } catch (error) {
       return this.#isAbortError(error);
@@ -307,12 +307,27 @@ export class MadeupMotorsService extends RemoteVehicleService {
   // Check the exception thrown from a fetch/#post and transform it into an
   // ErrorResponse.
   #isAbortError(error) {
-    if (error.name === 'AbortError') {
-      return new ErrorResponse('503',
-        `The Madeup Motors service did not respond in the expected amount of time (${this.timeoutMs} ms).`);
-    }
+    if (error) {
+      if (error['name'] === 'AbortError') {
+        return new ErrorResponse('503',
+          `The Madeup Motors service did not respond in the expected amount of time (${this.timeoutMs} ms).`);
+      }
 
-    return new ErrorResponse('503', error.message);
+      return new ErrorResponse('503', error['message']);
+    } else {
+      console.log(error);
+      return new ErrorResponse('500', 'There was a problem with the server.')
+    }
+  }
+
+  // Check the response from the server and convert that into a successful or
+  // an "error" EngineStatus.
+  #interpretEngineStatus(madeup) {
+    if (madeup['actionResult'] && madeup['actionResult']['status'] === 'EXECUTED') {
+      return new EngineStatus(Status.SUCCESS);
+    } else {
+      return new EngineStatus(Status.ERROR);
+    }
   }
 }
 

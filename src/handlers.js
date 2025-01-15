@@ -150,28 +150,23 @@ export const postStartStopEngine = (service) => {
       return;
     }
 
-    const body = await req.json()
+    let result;
 
-    let startOrStopFn;
+    const body = req.body;
     switch (body['action']) {
       case 'START':
-        startOrStopFn = service.startEngine;
+        result = await service.startEngine(id);
         break;
 
       case 'STOP':
-        startOrStopFn = service.stopEngine;
+        result = await service.stopEngine(id);
         break;
 
       default:
-        startOrStopFn = null;
+        res.status(400).send(new ErrorResponse('400', 'Requires an "action" in the request of either "START" or "STOP"'));
+        return;
     }
 
-    if (!startOrStopFn) {
-      res.status(400).send(new ErrorResponse('400', 'Requires an "action" in the request of either "START" or "STOP"'));
-      return;
-    }
-
-    const result = await startOrStopFn(id);
     const {error: error, code: code} = isError(result);
     if (error) {
       res.status(code).send(result);

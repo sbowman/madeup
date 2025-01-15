@@ -6,6 +6,7 @@ import promBundle from 'express-prom-bundle';
 import {getBatteryRange, getDoors, getFuelRange, getVehicleInfo, postStartStopEngine} from './handlers.js';
 import {RemoteVehicleService} from './remote/remote.js';
 import {ErrorResponse} from './errors.js';
+import * as bodyParser from 'express';
 
 /**
  * Create the Express routes for the given service, such as the
@@ -23,6 +24,8 @@ import {ErrorResponse} from './errors.js';
  */
 export default function createRoutes(service) {
   const server = express();
+
+  server.use(bodyParser.json())
 
   const labels = {};
   if (process.env.HOSTNAME) {
