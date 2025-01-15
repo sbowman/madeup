@@ -184,4 +184,46 @@ describe('Madeup Motors Service API', () => {
       expect(info.reason).toContain('not found');
     }
   });
+
+  test('An unexpected reply from the Madeup Motors API', async () => {
+    global.fetch = jest.fn().mockResolvedValue(mockResponse({
+      'service': 'getEnergy',
+      'status': '200',
+      'data': {
+        'range': {
+          'type': 'Number',
+          'value': '85.33'
+        },
+        'power': {
+          'type': 'String',
+          'value': 'electric'
+        }
+      }
+    }));
+
+    const info = await service.getVehicleInfo('97');
+    expect(info.code).toBe(503);
+    expect(info.reason).toContain('did the API change');
+
+    const doors = await service.getSecurity('97');
+    expect(doors.code).toBe(503);
+    expect(doors.reason).toContain('did the API change');
+
+    const fuel = await service.getFuelRange('97');
+    expect(fuel.code).toBe(503);
+    expect(fuel.reason).toContain('did the API change');
+
+    const battery = await service.getBatteryRange('97');
+    expect(battery.code).toBe(503);
+    expect(battery.reason).toContain('did the API change');
+
+    const start = await service.startEngine('97');
+    expect(start.code).toBe(503);
+    expect(start.reason).toContain('did the API change');
+
+    const stop = await service.stopEngine('97');
+    expect(stop.code).toBe(503);
+    expect(stop.reason).toContain('did the API change');
+
+  });
 });

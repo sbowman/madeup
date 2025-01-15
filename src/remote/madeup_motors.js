@@ -43,12 +43,18 @@ export class MadeupMotorsService extends RemoteVehicleService {
       }, (end - start) / 1000.0);
 
     if (madeup.status === '200') {
-        return new VehicleInfo(
+        const info = new VehicleInfo(
           this.#getString(madeup, 'vin'),
           this.#getString(madeup, 'color'),
           this.#getDoorCount(madeup),
           this.#getString(madeup, 'driveTrain')
         );
+
+        if (info.vin) {
+          return info;
+        }
+
+        return new ErrorResponse('503', 'Madeup Motors did not return the expected response; did the API change?');
       }
 
       return this.#parseError(madeup);
@@ -88,7 +94,7 @@ export class MadeupMotorsService extends RemoteVehicleService {
           }));
         }
 
-        return new ErrorResponse('503', 'Madeup Motors failed to return the expected response.');
+        return new ErrorResponse('503', 'Madeup Motors did not return the expected response; did the API change?');
       }
 
       return this.#parseError(madeup);
@@ -126,7 +132,11 @@ export class MadeupMotorsService extends RemoteVehicleService {
         const range = this.#getNumber(madeup, 'tankLevel');
 
         if (!range) {
-          return new ErrorResponse('400', 'This vehicle failed to return fuel range information; is it electric?');
+          if (this.#getNumber(madeup, 'batteryLevel')) {
+            return new ErrorResponse('400', 'This vehicle failed to return fuel range information; is it electric?');
+          } else {
+            return new ErrorResponse('503', 'Madeup Motors did not return the expected response; did the API change?');
+          }
         }
 
         return new Range(range);
@@ -167,7 +177,11 @@ export class MadeupMotorsService extends RemoteVehicleService {
         const range = this.#getNumber(madeup, 'batteryLevel');
 
         if (!range) {
-          return new ErrorResponse('400', 'This vehicle failed to return battery range information; is it gas-powered?');
+          if (this.#getNumber(madeup, 'tankLevel')) {
+            return new ErrorResponse('400', 'This vehicle failed to return battery range information; is it gas-powered?');
+          } else {
+            return new ErrorResponse('503', 'Madeup Motors did not return the expected response; did the API change?');
+          }
         }
 
         return new Range(range);
@@ -335,12 +349,16 @@ export class MadeupMotorsService extends RemoteVehicleService {
   #interpretEngineStatus(madeup) {
     if (madeup['actionResult'] && madeup['actionResult']['status'] === 'EXECUTED') {
       return new EngineStatus(Status.SUCCESS);
-    } else {
+    } else if (madeup['actionResult'] && madeup['actionResult']['status'])  {
       return new EngineStatus(Status.ERROR);
+    } else {
+      return new ErrorResponse('503', 'Madeup Motors did not return the expected response; did the API change?');
     }
   }
 }
 
+// Generates the JSON for a simple request to look up information about a
+// vehicle by its ID.
 class VehicleRequest {
   constructor(id) {
     this.id = id;
@@ -348,6 +366,8 @@ class VehicleRequest {
   }
 }
 
+// Generates the JSON to POST to the server when requesting to start or stop the
+// engine.
 class VehicleCommand {
   constructor(id, command) {
     this.id = id;
