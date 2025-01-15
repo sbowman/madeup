@@ -1,5 +1,7 @@
 /** @module remote **/
 
+import winston from 'winston';
+
 import {Range, Door, DoorSecurity, RemoteVehicleService, VehicleInfo, EngineStatus, Status} from './remote.js';
 import {ErrorResponse} from '../errors.js';
 import {latency} from './metrics.js';
@@ -13,9 +15,11 @@ export class MadeupMotorsService extends RemoteVehicleService {
    * @constructor
    * @param {string} host the Madeup Motors API URL
    * @param {number} timeoutMs how long to wait for the Madeup Motors API to reply, in ms
+   * @param {winston.Logger} logger for logging any errors
    */
-  constructor(host, timeoutMs) {
+  constructor(host, timeoutMs, logger) {
     super('madeup_motors', host, timeoutMs);
+    this.logger = logger;
   }
 
   /**
@@ -315,7 +319,7 @@ export class MadeupMotorsService extends RemoteVehicleService {
 
       return new ErrorResponse('503', error['message']);
     } else {
-      console.log(error);
+      this.logger.error('Received an unrecognized error from Madeup Motors', {original: error});
       return new ErrorResponse('500', 'There was a problem with the server.')
     }
   }

@@ -6,7 +6,6 @@ import promBundle from 'express-prom-bundle';
 import {getBatteryRange, getDoors, getFuelRange, getVehicleInfo, postStartStopEngine} from './handlers.js';
 import {RemoteVehicleService} from './remote/remote.js';
 import {ErrorResponse} from './errors.js';
-import * as bodyParser from 'express';
 
 /**
  * Create the Express routes for the given service, such as the
@@ -25,7 +24,16 @@ import * as bodyParser from 'express';
 export default function createRoutes(service) {
   const server = express();
 
-  server.use(bodyParser.json())
+  server.use(express.json());
+
+  // express.json() throws an error if the JSON is bad; let's trap that...
+  server.use((err, req, res, next) => {
+    if (err) {
+      res.status(400).send(new ErrorResponse('400', `Unable to parse the request's JSON body: ${err['message']}`))
+    } else {
+      next()
+    }
+  })
 
   const labels = {};
   if (process.env.HOSTNAME) {
