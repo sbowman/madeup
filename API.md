@@ -9,7 +9,7 @@ inputs and samples of their outputs.
 
 ## Error Handling
 
-Any endpoint may return an error.  We have tried to standardize on the format
+Any endpoint may return an error.  I have tried to standardize on the format
 of the error and make sure to catch any issues.  If you find an endpoint 
 returning a response not in this format, please file a bug ticket.
 
@@ -45,12 +45,13 @@ properties:
 * `vin` (_string_) - the vehicle information number
 * `color` (_string_) - the external paint color of the vehicle
 * `doorCount` (_number_) - the number of doors on the vehicle
-* `driveTrain` (_string_) - what type of engine or power plant is used by this vehicle
+* `driveTrain` (_string_) - what type of engine or power plant is used by this 
+  vehicle
 
 The VIN number of a vehicle should be universally unique, even across 
 manufacturers.  However, this API returns the VIN number returned by the remote
-service, so depending on the service we cannot guarantee uniqueness of this 
-value.
+service, so depending on the service _we cannot guarantee uniqueness of this 
+value_.
 
 The `driveTrain` indicates how the vehicle is powered.  This may be an engine
 type, such as "v8" or "v6."  In the case of an electric vehicle, is should be
@@ -73,14 +74,16 @@ type, such as "v8" or "v6."  In the case of an electric vehicle, is should be
     GET /vehicles/:id/doors
 
 The `:id` represents the remote automater's internal identifier for the vehicle
-in question.  (The ID should **not** be the VIN number.)
+in question.  This is not necessarily the VIN number, and if the two are 
+different, use the ID.
 
 ### Response
 
 The endpoint responds with an array of doors on the vehicle, along with their
 state, i.e. if they're locked or not.  Each door has two properties:
 
-* `location` (_string_) - the location of the door, e.g. "frontLeft" or "backRight"
+* `location` (_string_) - the location of the door, e.g. "frontLeft" or 
+  "backRight"
 * `locked` (_boolean_) - is the door locked?
 
 ### Example
@@ -117,6 +120,10 @@ be able to roughly calculate the range of the vehicle.
 
     GET /vehicles/:id/fuel
 
+The `:id` represents the remote automater's internal identifier for the vehicle
+in question.  This is not necessarily the VIN number, and if the two are
+different, use the ID.
+
 ### Response
 
 This endpoint responds with a simple object containing one property:
@@ -149,11 +156,16 @@ vehicle.
 
     GET /vehicles/:id/battery
 
+The `:id` represents the remote automater's internal identifier for the vehicle
+in question.  This is not necessarily the VIN number, and if the two are
+different, use the ID.
+
 ### Response
 
 This endpoint responds with a simple object containing one property:
 
-* `range` (_number_) - a percentage indicating percent of remaining battery power
+* `range` (_number_) - a percentage indicating percent of remaining battery 
+  power
 
 Note that if the vehicle is gas-powered, this endpoint will return a `400 Bad 
 Request` and recommend you call the `/fuel` endpoint.
@@ -183,12 +195,20 @@ to the Smartcar API.
         "action": "START|STOP"
     }
 
+The `:id` represents the remote automater's internal identifier for the vehicle
+in question.  This is not necessarily the VIN number, and if the two are
+different, use the ID.
+
+The "action" may be either "START" or "STOP," but not both.  If any other value
+is used for action, returns a `400 Bad Request`.
+
 ### Response
 
 If the call is successful, the endpoint returns a simple object with a single
 property:
 
-* `status` (_string_) - either "success" if the service accepted the request or "error" if it didn't
+* `status` (_string_) - either "success" if the service accepted the request or 
+  "error" if it didn't
 
 Note that even if calling this endpoint results in a successful response, that
 doesn't mean the vehicle has been started.  It is up to the remote service to
